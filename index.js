@@ -1,7 +1,7 @@
 import "dotenv/config"; // loads variables from .env file
 import express from "express";
 import bodyParser from "body-parser";
-import * as paypal from "./api/paypal-api.js";
+import * as paypal from "./paypal-api.js";
 import * as firebase_admin_app from "firebase-admin/app";
 import * as firebase_admin_fstr from "firebase-admin/firestore";
 import serviceAccount from "./serviceAccountKey.json" assert { type: "json" };
