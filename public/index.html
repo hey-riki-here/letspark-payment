@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto">
+  <link rel="icon" href="/lets-park-logo.png">
+  <title>Let's Park Payment</title>
+  <style>
+    body {
+      background: #EBF0F5;
+    }
+
+    #paypal-button-container {
+      background: white;
+      flex-direction: column;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      min-height: 100vh;
+      box-shadow: 2px 5px 15px #888888;
+      border-radius: 12px;
+      padding: 10px;
+      margin: 10px;
+    }
+
+    #header {
+      font-family: Roboto;
+      color: cornflowerblue;
+      font-weight: 500;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Replace "test" with your own sandbox Business account app client ID -->
+  <script
+    src="https://www.paypal.com/sdk/js?client-id=AYPot8nEKinVxYUvwSr5mmG-Q6dT-in0OqcRKNGAct0hLlUt6SVDZMtJqGpg74Uw5rkxl51wrs2rwTCo&currency=PHP"></script>
+  <!-- Set up a container element for the button -->
+  <div id="paypal-button-container">
+    <img src="/lets-park-logo.png" width="100px" height="100px" />
+    <p id="header">Parking is made easy with Let's Park!</p>
+    <div id="test">
+      <img id="loading" src="/loading-gif.gif" width="20px" />
+    </div>
+
+    <script>
+      fetch("/api/firestore/payment", {
+        method: "get",
+      })
+        .then((response) => response.json())
+        .then((payment) => {
+
+          var element = document.getElementById('test');
+          document.getElementById('loading').remove();
+          element.innerHTML = payment.type === 'book' ? `
+          <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px;">
+          <!-- start copy -->
+          <tr>
+            <td align="left" bgcolor="#ffffff"
+              style="padding: 24px; font-family: 'Source Sans Pro', Helvetica, Arial, sans-serif; font-size: 16px; line-height: 24px;">
+              <p style="margin: 0;">Here is a summary of your recent parking. If you have any questions or concerns about
+                your parking, you can always contact the caretaker.</p><br>
+                <span><strong>Transaction date:</strong> ${getDate(payment.transactionDate)}</span>
+          
+            </td>
+          </tr>
+
+          <!-- end copy -->
+
+          <!-- start receipt table -->
+          <tr>
+            <td align="left" bgcolor="#ffffff"
+              style="padding: 24px; font-family: 'Source Sans Pro', Helvetica, Arial, sans-serif; font-size: 16px; line-height: 24px;">
+              <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                <tr>
+                  <td align="left" bgcolor="#f5f7fa" width="75%"
+                    style="padding: 12px;font-family: 'Source Sans Pro', Helvetica, Arial, sans-serif; font-size: 16px; line-height: 24px;">
+                    <strong style="color: #1aa7ec;">Parking session #</strong></td>
+                  <td align="left" bgcolor="#f5f7fa" width="25%"
+                    style="padding: 12px;font-family: 'Source Sans Pro', Helvetica, Arial, sans-serif; font-size: 16px; line-height: 24px;">
+                    <strong style="color: #1aa7ec;">${payment.parkingId}</strong></td>
+                </tr>
+                <tr>
+                  <td align="left" width="75%"
+                    style="padding: 6px 12px;font-family: 'Source Sans Pro', Helvetica, Arial, sans-serif; font-size: 16px; line-height: 24px;">
+                    Arrival</td>
+                  <td align="left" width="25%"
+                    style="padding: 6px 12px;font-family: 'Source Sans Pro', Helvetica, Arial, sans-serif; font-size: 16px; line-height: 24px;">
+                    ${getDateTime(payment.arrival)}</td>
+                </tr>
+                <tr>
+                  <td align="left" width="75%"
+                    style="padding: 6px 12px;font-family: 'Source Sans Pro', Helvetica, Arial, sans-serif; font-size: 16px; line-height: 24px;">
+                    Departure</td>
+                  <td align="left" width="25%"
+                    style="padding: 6px 12px;font-family: 'Source Sans Pro', Helvetica, Arial, sans-serif; font-size: 16px; line-height: 24px;">
+                    ${getDateTime(payment.departure)}</td>
+                </tr>
+                <tr>
+                  <td align="left" width="75%"
+                    style="padding: 6px 12px;font-family: 'Source Sans Pro', Helvetica, Arial, sans-serif; font-size: 16px; line-height: 24px;">
+                    Duration</td>
+                  <td align="left" width="25%"
+                    style="padding: 6px 12px;font-family: 'Source Sans Pro', Helvetica, Arial, sans-serif; font-size: 16px; line-height: 24px;">
+                    ${payment.duration}</td>
+                </tr>
+                <tr>
+                  <td align="left" width="75%"
+                    style="padding: 12px; font-family: 'Source Sans Pro', Helvetica, Arial, sans-serif; font-size: 16px; line-height: 24px; border-top: 2px dashed #8cd3ff; border-bottom: 2px dashed #8cd3ff;">
+                    <strong>Parking fee</strong></td>
+                  <td align="left" width="25%"
+                    style="padding: 12px; font-family: 'Source Sans Pro', Helvetica, Arial, sans-serif; font-size: 16px; line-height: 24px; border-top: 2px dashed #8cd3ff; border-bottom: 2px dashed #8cd3ff;">
+                    <strong>${payment.parkingFee}.00</strong></td>
+                </tr>
+                <tr><td><br></td></tr>
+                <tr>
+                  <td align="left" bgcolor="#f5f7fa" width="75%"
+                    style="padding: 12px;font-family: 'Source Sans Pro', Helvetica, Arial, sans-serif; font-size: 16px; line-height: 24px;">
+                    <strong style="color: #1aa7ec;">Address</strong></td>
+                  <td align="left" bgcolor="#f5f7fa" width="25%"
+                    style="padding: 12px;font-family: 'Source Sans Pro', Helvetica, Arial, sans-serif; font-size: 16px; line-height: 24px;">
+                    <strong style="color: #1aa7ec;">${payment.parkingAddress}</strong></td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          <!-- end reeipt table -->
+          </table>
+          <br/>
+          ` : `
+          <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px;">
+          <!-- start copy -->
+          <tr>
+            <td align="left" bgcolor="#ffffff"
+              style="padding: 24px; font-family: 'Source Sans Pro', Helvetica, Arial, sans-serif; font-size: 16px; line-height: 24px;">
+              <p style="margin: 0;">Here is a summary of your parking extension. If you have any questions or concerns about
+                your parking, you can always contact the caretaker.</p><br>
+                <span><strong>Transaction date:</strong> ${getDate(payment.transactionDate)}</span>
+          
+            </td>
+          </tr>
+
+          <!-- end copy -->
+
+          <!-- start receipt table -->
+          <tr>
+            <td align="left" bgcolor="#ffffff"
+              style="padding: 24px; font-family: 'Source Sans Pro', Helvetica, Arial, sans-serif; font-size: 16px; line-height: 24px;">
+              <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                <tr>
+                  <td align="left" bgcolor="#f5f7fa" width="75%"
+                    style="padding: 12px;font-family: 'Source Sans Pro', Helvetica, Arial, sans-serif; font-size: 16px; line-height: 24px;">
+                    <strong style="color: #1aa7ec;">Parking session #</strong></td>
+                  <td align="left" bgcolor="#f5f7fa" width="25%"
+                    style="padding: 12px;font-family: 'Source Sans Pro', Helvetica, Arial, sans-serif; font-size: 16px; line-height: 24px;">
+                    <strong style="color: #1aa7ec;">${payment.parkingId}</strong></td>
+                </tr>
+                <tr>
+                  <td align="left" width="75%"
+                    style="padding: 6px 12px;font-family: 'Source Sans Pro', Helvetica, Arial, sans-serif; font-size: 16px; line-height: 24px;">
+                    Extended for</td>
+                  <td align="left" width="25%"
+                    style="padding: 6px 12px;font-family: 'Source Sans Pro', Helvetica, Arial, sans-serif; font-size: 16px; line-height: 24px;">
+                    ${payment.duration}</td>
+                </tr>
+                <tr>
+                  <td align="left" width="75%"
+                    style="padding: 6px 12px;font-family: 'Source Sans Pro', Helvetica, Arial, sans-serif; font-size: 16px; line-height: 24px;">
+                    New Departure</td>
+                  <td align="left" width="25%"
+                    style="padding: 6px 12px;font-family: 'Source Sans Pro', Helvetica, Arial, sans-serif; font-size: 16px; line-height: 24px;">
+                    ${getDateTime(payment.departure)}</td>
+                </tr>
+                <tr>
+                  <td align="left" width="75%"
+                    style="padding: 12px; font-family: 'Source Sans Pro', Helvetica, Arial, sans-serif; font-size: 16px; line-height: 24px; border-top: 2px dashed #8cd3ff; border-bottom: 2px dashed #8cd3ff;">
+                    <strong>Parking fee</strong></td>
+                  <td align="left" width="25%"
+                    style="padding: 12px; font-family: 'Source Sans Pro', Helvetica, Arial, sans-serif; font-size: 16px; line-height: 24px; border-top: 2px dashed #8cd3ff; border-bottom: 2px dashed #8cd3ff;">
+                    <strong>${payment.parkingFee}.00</strong></td>
+                </tr>
+                <tr><td><br></td></tr>
+                <tr>
+                  <td align="left" bgcolor="#f5f7fa" width="75%"
+                    style="padding: 12px;font-family: 'Source Sans Pro', Helvetica, Arial, sans-serif; font-size: 16px; line-height: 24px;">
+                    <strong style="color: #1aa7ec;">Address</strong></td>
+                  <td align="left" bgcolor="#f5f7fa" width="25%"
+                    style="padding: 12px;font-family: 'Source Sans Pro', Helvetica, Arial, sans-serif; font-size: 16px; line-height: 24px;">
+                    <strong style="color: #1aa7ec;">${payment.parkingAddress}</strong></td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          <!-- end reeipt table -->
+          </table>
+          <br/>
+          `;
+        });
+
+      function getDate(timestamp) {
+        return new Date(timestamp).toLocaleDateString('en-us', { year: "numeric", month: "long", day: "numeric" });
+      }
+      function getDateTime(timestamp) {
+        return new Date(timestamp).toLocaleDateString('en-us', { timeZone: "Asia/Macau", year: "numeric", month: "long", day: "numeric", hour: "numeric", minute: "numeric" });
+      }
+    </script>
+  </div>
+  <script>
+    paypal
+      .Buttons({
+        // Sets up the transaction when a payment button is clicked
+        createOrder: function (data, actions) {
+          return fetch(`/api/orders`, {
+            method: "post",
+            // use the "body" param to optionally pass additional order information
+            // like product ids or amount
+          })
+            .then((response) => response.json())
+            .then((order) => {
+              return order.id;
+            });
+        },
+        // Finalize the transaction after payer approval
+        onApprove: function (data, actions) {
+          return fetch(`/api/orders/${data.orderID}/capture`, {
+            method: "post",
+          })
+            .then((response) => response.json())
+            .then((orderData) => {
+              // Successful capture! For dev/demo purposes:
+              console.log(
+                "Capture result",
+                orderData,
+                JSON.stringify(orderData, null, 2)
+              );
+              var transaction =
+                orderData.purchase_units[0].payments.captures[0];
+              // alert(
+              //   "Transaction " +
+              //     transaction.status +
+              //     ": " +
+              //     transaction.id +
+              //     "\n\nSee console for all available details"
+              // );
+              fetch("/api/firestore/paying/done", {
+                method: "post",
+              });
+              // When ready to go live, remove the alert and show a success message within this page. For example:
+              var element = document.getElementById('paypal-button-container');
+              element.innerHTML = '<head><link href="https://fonts.googleapis.com/css?family=Nunito+Sans:400,400i,700,900&display=swap" rel="stylesheet"></head><style>body {text-align: center;padding: 40px 0;background: #EBF0F5;}h1 {color: #88B04B;font-family: "Nunito Sans", "Helvetica Neue", sans-serif;font-weight: 900;font-size: 40px;margin-bottom: 10px;}p {color: #404F5E;font-family: "Nunito Sans", "Helvetica Neue", sans-serif;font-size:20px;margin: 0;}i {color: #9ABC66;font-size: 100px;line-height: 200px;margin-left:-15px;}.card {background: white;padding: 60px;border-radius: 4px;box-shadow: 0 2px 3px #C8D0D8;display: inline-block;margin: 0 auto;}</style><body><div class="card"><div style="border-radius:200px; height:200px; width:200px; background: #F8FAF5; margin:0 auto;"><i class="checkmark">✓</i></div><h1>Success</h1> <p>The parking owner received your payment.<br/> Thank you for using our app!</p></div></body>';
+              // Or go to another URL: actions.redirect('public/thank_you.html');
+            });
+
+
+        },
+      })
+      .render("#paypal-button-container");
+  </script>
+</body>
+
+</html>
