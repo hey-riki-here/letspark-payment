@@ -46,7 +46,7 @@ app.get("/api/:uid", async (req, res) => {
 
 app.get("/api/test", async (req, res) => {
   try {
-    res.send({ "test": "data" });
+    res.send("Hello");
   } catch (error) {
     res.status(500).send(error);
   }
