@@ -19,5 +19,8 @@
     "express": "^4.17.3",
     "firebase-admin": "^11.0.1",
     "node-fetch": "^3.2.1"
+  },
+  "devDependencies": {
+    "webpack-cli": "^4.10.0"
   }
 }
