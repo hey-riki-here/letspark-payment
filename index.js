@@ -21,6 +21,11 @@ let paymentId = "";
 
 app.use(express.static('public'));
 
+app.get('/', (req, res) => {
+  res.send("Test");
+  res.sendStatus(200)
+})
+
 app.get("/favicon.ico", (req, res) => {
   res.sendStatus(404);
 });
