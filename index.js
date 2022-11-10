@@ -44,14 +44,6 @@ app.get("/api/:uid", async (req, res) => {
   }
 });
 
-app.get("/api/test", async (req, res) => {
-  try {
-    res.send("Hello");
-  } catch (error) {
-    res.status(500).send(error);
-  }
-});
-
 app.post("/api/orders", async (req, res) => {
   try {
     const order = await paypal.createOrder(email, price);
@@ -126,8 +118,13 @@ app.post("/write/to/database", jsonParser, async (req, res) => {
 });
 
 app.get("/api/firestore/payment", async (req, res) => {
-  let data = await getPaymentDetails();
-  res.send(data);
+  try {
+
+    let data = await getPaymentDetails();
+    res.send(data);
+  } catch (e) {
+    res.send("Error");
+  }
 });
 
 app.listen(PORT, () => {
