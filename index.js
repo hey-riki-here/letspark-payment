@@ -44,18 +44,26 @@ app.get("/api/:uid", async (req, res) => {
   }
 });
 
+app.get("/api/test", async (req, res) => {
+  try {
+    res.send({ "test": "data" });
+  } catch (error) {
+    res.status(500).send(error);
+  }
+});
+
 app.post("/api/orders", async (req, res) => {
   try {
     const order = await paypal.createOrder(email, price);
 
     const paymentRef = await db.collection("user-data").doc(uid).collection("payments").doc(paymentId).get();
 
-    if (paymentRef.exists){
+    if (paymentRef.exists) {
       res.json(order);
     } else {
       res.sendFile("public/something_went_wrong.html", { root: "." });
     }
-    
+
   } catch (err) {
     res.status(500).send(err);
   }
@@ -161,7 +169,7 @@ async function getPaymentDetails() {
   let data = null;
   (await db.collection("user-data")
     .doc(uid).collection('payments').get()).docs.forEach((value) => {
-      paymentId = value.id; 
+      paymentId = value.id;
       data = value.data();
     });
 
